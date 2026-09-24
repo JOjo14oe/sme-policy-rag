@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>私有知识库问答系统</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-mark">KB</span>
+      <div class="logo-text">
+        <b>私有知识库问答</b>
+        <small>本地 RAG · 零 Token</small>
+      </div>
+    </div>
+    <nav>
+      <button class="nav-item active" data-view="chat">💬 智能问答</button>
+      <button class="nav-item" data-view="kbs">📚 知识库管理</button>
+      <button class="nav-item" data-view="classify">🧬 自动分类建库</button>
+      <button class="nav-item" data-view="audit">🧾 审计日志</button>
+      <button class="nav-item" data-view="system">🩺 系统状态</button>
+    </nav>
+    <div class="actor-box">
+      <div class="actor-title">当前身份<span class="dim">(决定可见知识库)</span></div>
+      <label>角色 <input type="text" id="actorRole" placeholder="admin / hr / staff" list="roleList">
+        <datalist id="roleList">
+          <option value="admin"></option><option value="hr"></option>
+          <option value="finance"></option><option value="staff"></option>
+        </datalist>
+      </label>
+      <label>部门 <input type="text" id="actorDept" placeholder="如 人力资源部" list="deptList">
+        <datalist id="deptList">
+          <option value="人力资源部"></option><option value="财务部"></option>
+          <option value="行政部"></option><option value="技术部"></option>
+        </datalist>
+      </label>
+      <button class="ghost" id="actorSaveBtn">保存身份</button>
+    </div>
+    <div class="sidebar-foot" id="status-line">正在检测服务…</div>
+  </aside>
+
+  <main class="main">
+    <!-- 问答视图 -->
+    <section id="view-chat" class="view active">
+      <header class="view-head">
+        <h2>智能问答</h2>
+        <div class="qa-mode">
+          <label><input type="radio" name="qaMode" value="auto" checked> 自动路由</label>
+          <label><input type="radio" name="qaMode" value="manual"> 手动指定</label>
+          <select id="manualKbSelect" disabled>
+            <option value="">-- 选择知识库(兜底) --</option>
+          </select>
+        </div>
+      </header>
+      <div id="chatLog" class="chat-log">
+        <div class="chat-empty" id="chatEmpty">
+          <div class="empty-icon">🗂️</div>
+          <p>向您的私有知识库提问。</p>
+          <p class="dim">支持自动路由匹配知识库;若匹配不足可切到「手动指定」兜底检索。</p>
+        </div>
+      </div>
+      <div class="chat-input-bar">
+        <textarea id="questionInput" rows="2" placeholder="输入问题,Enter 发送,Shift+Enter 换行"></textarea>
+        <button id="stopBtn" class="hidden danger-outline" title="停止生成并释放资源">■ 停止</button>
+        <button id="sendBtn" class="primary">发送</button>
+      </div>
+      <div class="chat-hint dim" id="routeHint"></div>
+    </section>
+
+    <!-- 知识库视图 -->
+    <section id="view-kbs" class="view">
+      <header class="view-head">
+        <h2>知识库管理</h2>
+        <button class="primary" id="createKbBtn">＋ 新建知识库</button>
+      </header>
+      <div class="kb-toolbar">
+        <button class="ghost" id="reconcileBtn">🧹 对账清理(孤儿向量)</button>
+        <span class="dim" id="reconcileResult"></span>
+      </div>
+      <div id="kbList" class="kb-list"></div>
+
+      <!-- 选中知识库的文档管理抽屉 -->
+      <div id="docPanel" class="doc-panel hidden">
+        <div class="doc-panel-head">
+          <button class="ghost" id="docBackBtn">← 返回</button>
+          <h3 id="docPanelTitle">文档管理</h3>
+          <span class="dim" id="docPanelStats"></span>
+        </div>
+        <div class="doc-upload">
+          <input type="file" id="docFileInput" multiple>
+          <button class="primary" id="uploadDocBtn">上传文档入库</button>
+          <button class="ghost" id="previewBtn">预览切分</button>
+          <span class="dim">支持 pdf / docx / txt / md / csv</span>
+        </div>
+        <div id="previewBox" class="preview-box hidden"></div>
+        <div id="docList" class="doc-list"></div>
+      </div>
+    </section>
+
+    <!-- 自动分类视图 -->
+    <section id="view-classify" class="view">
+      <header class="view-head">
+        <h2>AI 自动分类建库</h2>
+        <span class="dim">批量上传无标签混杂文档 → 自动聚类成若干主题 → 建议库名 → 您确认后建库入库</span>
+      </header>
+      <div class="classify-step">
+        <h4>① 上传混杂文档</h4>
+        <input type="file" id="classifyFileInput" multiple>
+        <button class="primary" id="classifyRunBtn">开始自动分类</button>
+        <div id="classifyProgress" class="dim"></div>
+      </div>
+      <div id="clusterBox" class="hidden">
+        <div class="classify-step">
+          <h4>② 候选分类(点击确认 / 可修改库名与描述)</h4>
+          <button class="ghost" id="suggestNamesBtn">🪄 AI 生成/刷新全部库名</button>
+          <button class="primary" id="confirmBuildBtn">③ 确认并建库入库</button>
+        </div>
+        <div id="clusterList"></div>
+        <div id="buildResult" class="result-box hidden"></div>
+      </div>
+    </section>
+
+    <!-- 审计日志视图 -->
+    <section id="view-audit" class="view">
+      <header class="view-head">
+        <h2>审计日志</h2>
+        <div class="qa-mode">
+          <select id="auditActionFilter">
+            <option value="">全部操作</option>
+            <option value="ask">问答</option>
+            <option value="conflict">冲突告警</option>
+            <option value="deny">越权拒绝</option>
+            <option value="doc_add">文档新增</option>
+            <option value="doc_update">文档更新</option>
+            <option value="doc_delete">文档删除</option>
+            <option value="doc_meta">制度属性修改</option>
+            <option value="kb_create">建库</option>
+            <option value="kb_update">库设置修改</option>
+            <option value="kb_delete">删库</option>
+          </select>
+          <button class="ghost" id="auditRefreshBtn">刷新</button>
+        </div>
+      </header>
+      <div id="auditStats" class="sys-status"></div>
+      <div id="auditList" class="audit-list">加载中…</div>
+    </section>
+
+    <!-- 系统状态视图 -->
+    <section id="view-system" class="view">
+      <header class="view-head"><h2>系统状态</h2></header>
+      <div id="sysStatus" class="sys-status">加载中…</div>
+      <div id="expiringBox" class="info-box hidden"></div>
+      <div id="isolationBox" class="info-box hidden"></div>
+      <div id="updateStatsBox" class="info-box hidden"></div>
+      <div class="config-box">
+        <h4>运行配置(编辑 data/config.json 后重启生效)</h4>
+        <pre id="configJson"></pre>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
