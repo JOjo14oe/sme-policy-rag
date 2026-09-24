@@ -16,7 +16,7 @@
 | **合规留痕要求** | **审计日志**:问答/冲突/越权/文档与库变更全程留痕,可查询统计 | ✅ |
 | 私有数据外泄风险 | **全本地化**:解析/检索/问答/检测全部本机 Ollama,零 Token、不出内网 | ✅ |
 
-详见 [`docs/产品化增强落地报告.md`](docs/产品化增强落地报告.md)、[`docs/创新点落地总结报告.md`](docs/创新点落地总结报告.md)。
+详见 [`docs/产品化增强落地报告.md`](docs/产品化增强落地报告.md)、[`docs/竞品对比与差距分析.md`](docs/竞品对比与差距分析.md)。
 
 ## 特性一览
 
@@ -75,7 +75,7 @@ rag-local/
 ├── start.bat / install.bat              # 入口:启动(守护)/ 安装
 ├── .github/                             # CI 工作流 + Issue / PR 模板
 ├── backend/
-│   ├── requirements.txt / requirements-dev.txt
+│   ├── requirements.txt        # 运行与报告生成所需依赖(含 python-docx / pymupdf)
 │   ├── app/                     # 后端源码(FastAPI)
 │   │   ├── main.py              # 入口(启动时执行向量布局迁移与清理)
 │   │   ├── core/                # config / db(含块级账本) / ollama_client(并发闸、探活、超时)
@@ -91,17 +91,12 @@ rag-local/
 │   ├── chroma_legacy_backup/    # 旧单实例布局的迁移备份(可回滚)
 │   ├── files/<kb_id>/           # 文档原文归档
 │   └── logs/                    # guard.log / backend.out.log / backend.err.log
-├── docs/                        # 交付文档(报告 / 手册 / 答辩材料 / 发布清单)
-│   ├── 项目优势总结.md/.docx             # ★ 项目优点系统总结(业务痛点/技术优势/竞品对比/指标)
+├── docs/                        # 交付文档(报告 / 手册 / 发布清单)
+│   ├── 产品化增强落地报告.md/.docx      # ★ 版本治理 / 权限隔离 / 审计日志(含实测证据)
+│   ├── 竞品对比与差距分析.md/.docx      # ★ 对标 9 个 GitHub 开源项目的能力矩阵与差距
 │   ├── 验收报告.md                      # 原端到端验收记录(19 项)
-│   ├── 创新点落地总结报告.md/.docx      # 硬隔离 / 增量更新 / 冲突检测
-│   ├── 产品化增强落地报告.md/.docx      # 版本治理 / 权限隔离 / 审计日志
-│   ├── 竞品对比与差距分析.md/.docx      # 对标 9 个 GitHub 开源项目的能力矩阵
 │   ├── 运维与稳定性.md                  # 根因清单、启动方式、FAQ、检索调参、评测用法
-│   ├── GitHub发布清单.md                # ★ 提交到 GitHub 的逐项核对清单
-│   ├── 答辩讲稿(5分钟演讲+3分钟问答).md/.docx
-│   ├── 答辩PPT(5分钟精简版).pptx
-│   └── 中小企业制度文档RAG系统答辩PPT(改进版).pptx
+│   └── GitHub发布清单.md                # 提交到 GitHub 的逐项核对清单
 └── scripts/
     ├── run_server.ps1           # 守护脚本(自愈核心)
     ├── make_demo_docs.py        # 生成演示文档
@@ -111,11 +106,9 @@ rag-local/
     ├── verify_productization.py # 产品化增强验证套件(27 项,输出证据 JSON)
     ├── eval_retrieval.py        # 检索/答案质量评测(四模式消融,输出证据 JSON)
     ├── sanitize_evidence.py     # 提交前证据脱敏(替换本机绝对路径)
-    ├── docx_to_md.py            # Word → Markdown 反向转换
-    ├── make_innovation_report.py / make_productization_report.py  # 生成报告
-    ├── make_defense_ppt.py / make_five_min_ppt.py                 # 生成答辩 PPT
-    ├── make_advantages_doc.py   # 生成《项目优势总结》
-    └── md_to_docx.py            # 通用 Markdown → Word 转换
+    ├── make_productization_report.py  # 生成《产品化增强落地报告》Word(docx)
+    ├── md_to_docx.py            # 通用 Markdown → Word 转换(竞品对比等文档)
+    └── docx_to_md.py            # Word → Markdown 反向转换
 ```
 
 ---

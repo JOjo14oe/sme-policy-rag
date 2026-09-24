@@ -2,7 +2,7 @@
 
 **项目**:面向中小企业内部制度文档的多知识库私有 RAG 智能问答系统(rag-local)
 **清单编制日期**:2026-09-24
-**当前状态**:代码与文档齐备,**待完成:安装 Git → 初始化仓库 → 首次提交 → 推送到 GitHub**
+**当前状态**:仓库已初始化并推送至 GitHub(分支 `main`),Actions 三个作业全绿;本清单保留供**复核 / 迁移到新仓库**时逐项对照
 
 ---
 
@@ -13,7 +13,7 @@
 | 1 | **许可证** | 已放置 `LICENSE`(MIT,著作权人:智启未来 AI 团队)。若需专利条款可改 Apache-2.0 | 决定他人可否商用、是否需保留版权声明 |
 | 2 | **仓库名** | `rag-local`(或 `sme-policy-rag`) | 影响 README 徽章、Issue 模板中的链接占位 |
 | 3 | **公开范围** | 建议:**公开**源码 + 文档;**不公开**运行数据与真实制度内容 | 决定是否需要私有仓库 |
-| 4 | **答辩材料是否入库** | 建议入库(体现完整交付),但仓库为公开时请确认无敏感信息 | `docs/` 下的 PPT/讲稿/评审说明 |
+| 4 | **竞赛/答辩材料是否入库** | **不入库**:仓库定位为可复用的开源项目,答辩 PPT/讲稿/竞赛报告一律排除在版本控制之外 | 相关材料如需保留,请在仓库外单独维护 |
 
 > Issue 模板中的 `OWNER/REPO` 占位符请在仓库创建后替换为实际地址:
 > `.github/ISSUE_TEMPLATE/config.yml`。
@@ -64,9 +64,12 @@ Test-Path data\meta.db          # 存在正常,但不得进入 git
 | `backend/.venv/` | 虚拟环境(约 420MB),可由 `install.bat` 重建 |
 | `__pycache__/`、`*.pyc` | 编译缓存 |
 | `*.log`、`data/logs/` | 运行日志(含请求内容) |
-| `scripts/demo_docs/` | 演示文档生成物(由脚本重建) |
 | `.env`、`data/config.json` | 本地覆写配置(可能含个人路径) |
 | 真实企业内部制度文档 | 涉密;评测语料请使用虚构文本 |
+| 竞赛/答辩材料(PPT、讲稿、竞赛报告) | 不属于开源项目交付物 |
+
+> `scripts/demo_docs/`(15 个**虚构**演示文档)是**有意入库**的示例语料,便于克隆后直接跑 `scripts/seed_demo_kbs.py` 体验;
+> 由 `scripts/make_demo_docs.py` 可重新生成。若不需要可用 `git rm -r --cached scripts/demo_docs` 从索引移除。
 
 ---
 
@@ -85,13 +88,13 @@ git add .github/
 git commit -m "chore: 初始化仓库元信息(gitignore/属性/许可证/贡献与安全说明/CI)"
 
 # ---- 提交 2:后端与前端源码 ----
-git add backend/requirements.txt backend/requirements-dev.txt
+git add backend/requirements.txt
 git add backend/app/ backend/web/
 git commit -m "feat: 多知识库私有 RAG 问答系统(硬隔离/增量更新/冲突检测/版本治理/权限审计/混合检索)"
 
 # ---- 提交 3:脚本与文档 ----
 git add scripts/ docs/ install.bat start.bat
-git commit -m "docs+scripts: 守护与评测脚本、交付文档与答辩材料"
+git commit -m "docs+scripts: 守护与评测脚本、交付文档与发布清单"
 
 # 核对暂存结果(确认无 data/ 与 .venv)
 git status
@@ -176,16 +179,13 @@ rag-local/
 │   ├── ISSUE_TEMPLATE/{bug_report.md, feature_request.md, config.yml}
 │   └── PULL_REQUEST_TEMPLATE.md
 ├── backend/
-│   ├── requirements.txt / requirements-dev.txt
+│   ├── requirements.txt
 │   ├── app/{main.py, core/, rag/, services/, routers/}     # 30 个 Python 模块
 │   └── web/{index.html, style.css, app.js}                 # 免构建前端
-├── scripts/                                                # 守护 / 评测 / 报告生成
+├── scripts/                                                # 守护 / 演示语料 / 评测 / 报告生成
 └── docs/
-    ├── 项目优势总结.md/.docx · 创新点落地总结报告.md/.docx
     ├── 产品化增强落地报告.md/.docx · 竞品对比与差距分析.md/.docx
     ├── 运维与稳定性.md · 验收报告.md
-    ├── 答辩讲稿(5分钟演讲+3分钟问答).md/.docx
-    ├── 答辩PPT(5分钟精简版).pptx · 中小企业制度文档RAG系统答辩PPT(改进版).pptx
     └── GitHub发布清单.md(本文件)
 ```
 
@@ -200,7 +200,7 @@ rag-local/
 | 中文文件名在他人机器上乱码 | 未设置 `core.quotepath` | `git config --global core.quotepath false` |
 | 推送被拒(认证失败) | 未配置 Token / SSH | 使用 PAT 或 `gh auth login` |
 | 克隆后无法运行 | 缺虚拟环境与模型 | 依次执行 `install.bat` → `ollama pull deepseek-r1:7b` → `ollama pull bge-m3` → `start.bat` |
-| 想重新生成 PPT 但报"文件被占用" | PowerPoint 正在打开该文件 | 关闭 PowerPoint 后重跑 `scripts/make_defense_ppt.py` |
+| 想重新生成 Word 报告但报"文件被占用" | Word 正在打开该文件 | 关闭 Word 后重跑 `scripts/make_productization_report.py`(或 `md_to_docx.py`) |
 
 ---
 

@@ -6,13 +6,10 @@
 ## 一、开发环境
 
 ```bat
-:: 1) 运行期依赖(必须)
+:: 1) 运行期依赖(必须;含生成报告所需的 python-docx / pymupdf)
 install.bat
 
-:: 2) 文档/评测工具依赖(仅生成报告或 PPT 时需要)
-backend\.venv\Scripts\python.exe -m pip install -r backend\requirements-dev.txt
-
-:: 3) 本地模型(必须)
+:: 2) 本地模型(必须)
 ollama pull deepseek-r1:7b
 ollama pull bge-m3
 ```

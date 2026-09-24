@@ -1,4 +1,0 @@
-# 文档与评测工具依赖(仅在生成报告/PPT/评测时需要,服务运行不依赖)
-# 安装: pip install -r requirements-dev.txt
-python-pptx>=1.0        # 生成答辩 PPT(make_defense_ppt.py / make_five_min_ppt.py)
-Pillow>=10.0            # python-pptx 图片处理依赖
