@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使用问题与部署咨询
+    url: https://github.com/OWNER/REPO/discussions
+    about: 部署、模型选择、参数调优等使用类问题请先在 Discussions 提问(仓库创建后请把 OWNER/REPO 换成实际地址)
+  - name: 安全问题报告
+    url: https://github.com/OWNER/REPO/security/advisories/new
+    about: 越权绕过、信息泄露等安全或隐私问题请走私密报告渠道(见 SECURITY.md)

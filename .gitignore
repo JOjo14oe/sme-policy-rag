@@ -1,0 +1,48 @@
+# =====================================================================
+#  rag-local — .gitignore
+#  原则:私有运行数据与生成物一律不入库;仅提交源码、脚本与文档
+# =====================================================================
+
+# ---------- 私有运行数据(绝不提交) ----------
+data/
+*.db
+*.sqlite3
+*.sqlite3-*
+
+# ---------- Python 虚拟环境与缓存 ----------
+backend/.venv/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---------- 日志 ----------
+*.log
+logs/
+
+# ---------- 生成物(可由脚本重建) ----------
+scripts/demo_docs/          # 由 scripts/make_demo_docs.py 生成
+htmlcov/
+.coverage
+
+# ---------- Office / 临时文件 ----------
+~$*
+*.tmp
+*.bak
+*.swp
+
+# ---------- 操作系统 / IDE ----------
+Thumbs.db
+Desktop.ini
+.DS_Store
+.idea/
+.vscode/
+*.code-workspace
+
+# ---------- 本地配置覆写(含个人路径/模型名) ----------
+.env
+.env.local

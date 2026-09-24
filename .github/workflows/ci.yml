@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  python-check:
+    name: Python 语法与导入检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安装运行期依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: 编译全部 Python 源文件
+        run: python -m compileall -q backend/app scripts
+
+      - name: 导入应用(不启动服务、不调用 Ollama)
+        run: |
+          cd backend
+          python -c "from app.main import app; print('app import OK')"
+
+      - name: 核心服务模块导入自检
+        run: |
+          cd backend
+          python -c "from app.services import hybrid_retrieval, lexical_index, conflict_service, policy_service, auth_service, audit_service; print('services import OK')"
+
+  frontend-check:
+    name: 前端语法检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 检查 app.js 语法
+        run: node --check backend/web/app.js
+      - name: 检查静态资源存在
+        run: |
+          test -f backend/web/index.html
+          test -f backend/web/style.css
+          echo "静态资源齐全"
+
+  hygiene:
+    name: 仓库卫生检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 禁止提交私有运行数据 / 虚拟环境 / 日志
+        run: |
+          set -e
+          bad=0
+          for p in data backend/.venv __pycache__; do
+            if [ -e "$p" ]; then echo "::error::不应提交:$p"; bad=1; fi
+          done
+          if git ls-files | grep -Ei '\.(log|db|sqlite3)$'; then
+            echo "::error::不应提交日志或数据库文件"; bad=1
+          fi
+          exit $bad
+
+      - name: 禁止提交个人绝对路径
+        run: |
+          if git grep -nI -E '[A-Z]:\\\\Users\\\\' -- . ':!docs/*.docx' ':!*.pptx' ; then
+            echo "::error::检测到 Windows 个人绝对路径,请先运行 scripts/sanitize_evidence.py"
+            exit 1
+          fi
+          echo "未发现个人绝对路径"

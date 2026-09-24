@@ -1,0 +1,44 @@
+# =====================================================================
+#  .gitattributes — 统一跨平台换行与二进制判定
+#  背景:Windows 批处理(.bat)必须 CRLF,否则 cmd 解析异常;
+#        文本类文件统一 LF,避免 diff 噪声;Office/向量文件按二进制处理。
+# =====================================================================
+
+# 默认:入库时规范为 LF,检出时按平台自动转换
+* text=auto
+
+# 批处理脚本必须保持 CRLF(cmd.exe 对 LF 结尾的 .bat 解析不稳)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# PowerShell 脚本保持 CRLF(Windows PowerShell 5.1 友好)
+*.ps1 text eol=crlf
+
+# 源码与文档统一 LF
+*.py   text eol=lf
+*.js   text eol=lf
+*.css  text eol=lf
+*.html text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.txt  text eol=lf
+
+# 二进制文件不做换行转换,且不参与文本 diff
+*.docx  binary
+*.doc   binary
+*.pptx  binary
+*.xlsx  binary
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.zip   binary
+
+# 语言统计:文档与前端资源不计入主要语言占比
+docs/*     linguist-documentation
+*.md       linguist-documentation
+backend/web/* linguist-documentation
