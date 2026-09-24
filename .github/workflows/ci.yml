@@ -1,5 +1,9 @@
 name: CI
 
+# 轻量持续集成:不依赖 GPU / Ollama,可在 GitHub 免费额度内稳定运行。
+# 完整回归(73 项断言与检索评测)需要本机 Ollama 与模型,请在本地执行:
+#   scripts/ci_local.ps1  —— 一条命令复现本工作流的全部检查 + 完整回归
+
 on:
   push:
     branches: [ main ]
@@ -7,7 +11,14 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # ------------------------------------------------------------------
+  # 1) Python:依赖可安装、源码可编译、应用可导入(不启动服务)
+  # ------------------------------------------------------------------
   python-check:
     name: Python 语法与导入检查
     runs-on: ubuntu-latest
@@ -17,6 +28,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
 
       - name: 安装运行期依赖
         run: |
@@ -26,54 +39,87 @@ jobs:
       - name: 编译全部 Python 源文件
         run: python -m compileall -q backend/app scripts
 
-      - name: 导入应用(不启动服务、不调用 Ollama)
-        run: |
-          cd backend
-          python -c "from app.main import app; print('app import OK')"
+      - name: 导入 FastAPI 应用(不启动服务、不调用 Ollama)
+        working-directory: backend
+        run: python -c "from app.main import app; print('app import OK')"
 
-      - name: 核心服务模块导入自检
+      - name: 导入核心服务模块
+        working-directory: backend
         run: |
-          cd backend
           python -c "from app.services import hybrid_retrieval, lexical_index, conflict_service, policy_service, auth_service, audit_service; print('services import OK')"
+          python -c "from app.core import config, db, ollama_client; print('core import OK')"
+          python -c "from app.rag import parsers, chunker; print('rag import OK')"
 
+  # ------------------------------------------------------------------
+  # 2) 前端:静态资源齐全、JS 语法正确
+  # ------------------------------------------------------------------
   frontend-check:
-    name: 前端语法检查
+    name: 前端语法与资源检查
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - name: 检查 app.js 语法
         run: node --check backend/web/app.js
-      - name: 检查静态资源存在
+
+      - name: 检查静态资源存在且非空
         run: |
-          test -f backend/web/index.html
-          test -f backend/web/style.css
+          for f in backend/web/index.html backend/web/style.css backend/web/app.js; do
+            test -s "$f" || { echo "::error::缺少或为空:$f"; exit 1; }
+          done
+          grep -q "app.js" backend/web/index.html || { echo "::error::index.html 未引用 app.js"; exit 1; }
           echo "静态资源齐全"
 
+  # ------------------------------------------------------------------
+  # 3) 仓库卫生:私有数据不入库、无个人绝对路径
+  #    检查对象是【已跟踪文件】(git ls-files / git grep),而非工作区目录:
+  #    CI 的干净检出里本就不该出现 data/ 等目录,只有"被提交了"才算问题。
+  # ------------------------------------------------------------------
   hygiene:
     name: 仓库卫生检查
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: 禁止提交私有运行数据 / 虚拟环境 / 日志
+      - name: 私有数据 / 虚拟环境 / 缓存 不得入库
         run: |
-          set -e
-          bad=0
-          for p in data backend/.venv __pycache__; do
-            if [ -e "$p" ]; then echo "::error::不应提交:$p"; bad=1; fi
-          done
-          if git ls-files | grep -Ei '\.(log|db|sqlite3)$'; then
-            echo "::error::不应提交日志或数据库文件"; bad=1
+          set -uo pipefail
+          fail=0
+          tracked="$(git ls-files)"
+          if echo "$tracked" | grep -Eq '(^|/)(data|\.venv|venv|__pycache__)/'; then
+            echo "::error::检测到私有数据或缓存目录被纳入版本控制:"
+            echo "$tracked" | grep -E '(^|/)(data|\.venv|venv|__pycache__)/' | head -20
+            fail=1
           fi
-          exit $bad
+          if echo "$tracked" | grep -Eq '\.(log|db|sqlite3|pyc)$'; then
+            echo "::error::检测到日志 / 数据库 / 编译缓存文件被纳入版本控制:"
+            echo "$tracked" | grep -E '\.(log|db|sqlite3|pyc)$' | head -20
+            fail=1
+          fi
+          [ "$fail" -eq 0 ] && echo "✅ 未发现私有数据入库"
+          exit $fail
 
-      - name: 禁止提交个人绝对路径
+      - name: 个人绝对路径检查
         run: |
-          if git grep -nI -E '[A-Z]:\\\\Users\\\\' -- . ':!docs/*.docx' ':!*.pptx' ; then
-            echo "::error::检测到 Windows 个人绝对路径,请先运行 scripts/sanitize_evidence.py"
+          set -uo pipefail
+          # 匹配盘符路径(兼容 JSON 中的双反斜杠转义)与 Unix 用户主目录路径。
+          # 排除 Office/PDF 二进制产物,以及本检查所用正则的定义文件。
+          if git grep -nI -E '[A-Za-z]:\\{1,2}Users\\{1,2}[^\\/[:space:]]+|/(home|Users)/[A-Za-z0-9._-]+/' \
+               -- . ':!*.docx' ':!*.pptx' ':!*.pdf' ':!scripts/sanitize_evidence.py'; then
+            echo "::error::检测到个人绝对路径,请先运行:python scripts/sanitize_evidence.py --all"
             exit 1
           fi
-          echo "未发现个人绝对路径"
+          echo "✅ 未发现个人绝对路径"
+
+      - name: 关键文件存在性检查
+        run: |
+          set -e
+          for f in README.md LICENSE .gitignore .gitattributes CHANGELOG.md CONTRIBUTING.md SECURITY.md \
+                   backend/requirements.txt start.bat install.bat; do
+            test -s "$f" || { echo "::error::缺少关键文件:$f"; exit 1; }
+          done
+          echo "✅ 关键文件齐全"

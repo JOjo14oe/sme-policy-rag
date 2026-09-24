@@ -1,7 +1,7 @@
 """提交前脱敏:把证据 JSON / 报告中的本机绝对路径替换为占位符。
 
-为什么需要:评测与回归脚本会把本机路径(如 C:\\Users\\<用户名>\\...)写入证据 JSON,
-这些路径既无信息价值,也会泄露个人/机器信息,不应进入公开仓库。
+为什么需要:评测与回归脚本会把本机路径(Windows 盘符路径或 Unix 用户主目录路径)
+写入证据 JSON,这些路径既无信息价值,也会泄露个人/机器信息,不应进入公开仓库。
 
 处理范围(默认):
   scripts/_verify_result.json
@@ -11,6 +11,9 @@
   python scripts/sanitize_evidence.py            # 就地脱敏上述证据文件
   python scripts/sanitize_evidence.py --check    # 仅检查,发现残留路径时退出码 1
   python scripts/sanitize_evidence.py --all      # 额外扫描 docs/*.md 与 README.md
+
+注意:本文件的说明文字刻意不包含任何真实盘符路径示例,
+以免被 CI 的"个人绝对路径"检查误判(该检查扫描仓库内所有文本文件)。
 """
 from __future__ import annotations
 

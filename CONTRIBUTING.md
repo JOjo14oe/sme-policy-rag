@@ -61,7 +61,14 @@ backend\.venv\Scripts\python.exe scripts\verify_productization.py
 backend\.venv\Scripts\python.exe scripts\eval_retrieval.py
 ```
 
-**通过标准**:三套回归共 73 项断言全部通过;检索指标不低于基线
+**更省事的做法**:一条命令复现 CI 的全部检查(推送前建议先跑,避免 CI 变红):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\ci_local.ps1        # 与 CI 等价的 4 组检查
+powershell -ExecutionPolicy Bypass -File scripts\ci_local.ps1 -Full  # 追加完整回归与评测(需 Ollama)
+```
+
+**通过标准**:本地 CI 全绿;三套回归共 73 项断言全部通过;检索指标不低于基线
 (hit@1 = 1.000、引用命中 = 1.000、事实命中 = 1.000、拒答正确率 = 1.000)。
 
 改动检索/切分/提示词后,请在 PR 描述中给出**改进前后的指标对比**(评测脚本会输出 JSON 证据)。

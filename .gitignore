@@ -12,6 +12,7 @@ data/
 # ---------- Python 虚拟环境与缓存 ----------
 backend/.venv/
 .venv/
+.venv-*/                    # 临时/试验用虚拟环境(如 .venv-citest)
 venv/
 __pycache__/
 *.py[cod]
