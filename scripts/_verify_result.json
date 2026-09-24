@@ -1,0 +1,230 @@
+{
+  "base_url": "http://127.0.0.1:8000",
+  "checks": [
+    {
+      "name": "A、B 两库各有独立存储目录",
+      "pass": true,
+      "detail": "<PROJECT_ROOT>\\data\\vectors\\c4964e3f380b4f23 | <PROJECT_ROOT>\\data\\vectors\\f3ea598a45b944f1"
+    },
+    {
+      "name": "A、B 两库各有独立 chroma.sqlite3 文件",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "组件布局为 per-kb-chroma-instance",
+      "pass": true,
+      "detail": "per-kb-chroma-instance"
+    },
+    {
+      "name": "独立存储路径数 == 知识库数",
+      "pass": true,
+      "detail": "6 vs 6"
+    },
+    {
+      "name": "删除 A 库后其独立存储目录被物理移除",
+      "pass": true,
+      "detail": "mode=deleted"
+    },
+    {
+      "name": "删除 A 库后 B 库存储目录与文件完好",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "删除 A 库后 B 库检索问答仍然正常",
+      "pass": true,
+      "detail": "\n\n一咖啡烘焙的一爆温度是196℃。依据是参考资料中的记录[1]。"
+    },
+    {
+      "name": "多段长文档入库(用于增量比对)",
+      "pass": true,
+      "detail": "块数=5"
+    },
+    {
+      "name": "更新返回增量统计",
+      "pass": true,
+      "detail": "{\"total_chunks\": 5, \"reused_chunks\": 4, \"embedded_chunks\": 1, \"reuse_ratio\": 0.8, \"removed_old_vectors\": 5, \"embed_ms\": 321, \"actual_ms\": 344, \"estimated_full_reembed_ms\": 1628, \"time_saved_ms\": 1284}"
+    },
+    {
+      "name": "版本号递增且 doc_id 不变",
+      "pass": true,
+      "detail": "v2"
+    },
+    {
+      "name": "存在被复用的未变更块",
+      "pass": true,
+      "detail": "复用 4 / 共 5"
+    },
+    {
+      "name": "仅对变更块重新嵌入",
+      "pass": true,
+      "detail": "重嵌入 1 块"
+    },
+    {
+      "name": "未整篇重新向量化(复用率 > 0)",
+      "pass": true,
+      "detail": "复用率 0.8"
+    },
+    {
+      "name": "实测耗时低于整篇重嵌入估算",
+      "pass": true,
+      "detail": "实际 344ms vs 估算 1628ms"
+    },
+    {
+      "name": "更新后能检索到新内容(六个月)",
+      "pass": true,
+      "detail": "\n\n调休必须在六个月内使用完毕。依据是【参考资料】第三段，其中明确规定调休需在六个月内使用完毕，逾期作废。"
+    },
+    {
+      "name": "更新后对账无孤儿向量",
+      "pass": true,
+      "detail": "orphans=[]"
+    },
+    {
+      "name": "删除单篇文档返回清除的向量数",
+      "pass": true,
+      "detail": "清除 5 条"
+    },
+    {
+      "name": "删除后该文档零残留",
+      "pass": true,
+      "detail": "remaining=0"
+    },
+    {
+      "name": "库内向量总数精确下降",
+      "pass": true,
+      "detail": "5 → 0"
+    },
+    {
+      "name": "删除后对账无孤儿向量",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "冲突检测已执行(参与库 ≥ 2)",
+      "pass": true,
+      "detail": "kb_count=2, pairs=1"
+    },
+    {
+      "name": "识别出跨库矛盾",
+      "pass": true,
+      "detail": "conflicts=1"
+    },
+    {
+      "name": "冲突包含双方说法与来源",
+      "pass": true,
+      "detail": "point=年假天数和结转规则存在冲突。"
+    },
+    {
+      "name": "冲突双方来自不同知识库",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "问答链路发出 conflict 告警事件",
+      "pass": true,
+      "detail": "events=['conflict', 'delta', 'done', 'hits', 'route', 'route_info']"
+    },
+    {
+      "name": "回答同时呈现两种说法(5/10 天 与 8/12 天)",
+      "pass": true,
+      "detail": "  根据公司提供的参考资料，年假的天数和结转政策存在两种不同的规定：  1. **年假的天数**：    - **2025修订版**：员工工作满1年可享受年假8天，满5年享受12天，满10年享受18天。    - **2023版**：员工工"
+    },
+    {
+      "name": "回答明确提示存在冲突或分歧",
+      "pass": true,
+      "detail": "  根据公司提供的参考资料，年假的天数和结转政策存在两种不同的规定：  1. **年假的天数**：    - **2025修订版**：员工工作满1年可享受年假8天，满5年享受12天，满10年享受18天。    - **2023版**：员工工"
+    }
+  ],
+  "metrics": {
+    "incremental": {
+      "total_chunks": 5,
+      "reused_chunks": 4,
+      "embedded_chunks": 1,
+      "reuse_ratio": 0.8,
+      "removed_old_vectors": 5,
+      "embed_ms": 321,
+      "actual_ms": 344,
+      "estimated_full_reembed_ms": 1628,
+      "time_saved_ms": 1284
+    },
+    "precise_delete": {
+      "doc_id": "f54928d8e16a4087a2b32bd516d7e554",
+      "deleted_chunks": 5,
+      "remaining_chunks": 0,
+      "zero_residue": true,
+      "ok": true
+    },
+    "conflict_scan": {
+      "checked": true,
+      "kb_count": 2,
+      "pairs_considered": 1,
+      "conflicts": 1,
+      "relations": [
+        {
+          "pair": 1,
+          "relation": "conflict",
+          "point": "年假天数和结转规则存在冲突。",
+          "a_claim": "A方说法: 公司年假制度(2023 版):员工工作满 1 年可享受年假 5 天,满 5 年享受 10 天,满 10 年享受 15 天。当年未休完的年假不结转至次年,过期作废。",
+          "b_claim": "B方说法:公司年假制度(2025 修订版):员工工作满 1 年可享受年假 8 天,满 5 年享受 12 天,满 10 年享受 18 天。当年未休完的年假可结转至次年第一季度使用。",
+          "topic_sim": 0.6,
+          "numeric_divergence": {
+            "a_only": [
+              "15",
+              "2023",
+              "3"
+            ],
+            "b_only": [
+              "12",
+              "18",
+              "2025",
+              "7",
+              "8"
+            ]
+          },
+          "kind": "genuine_conflict",
+          "kind_label": "跨来源规定冲突",
+          "preferred": null,
+          "detected_by": "numeric+llm",
+          "a": {
+            "kb_id": "adcc9bd74c5a48ab",
+            "kb_name": "_验证库D-年假旧版",
+            "text": "公司年假制度(2023 版):员工工作满 1 年可享受年假 5 天,满 5 年享受 10 天,满 10 年享受 15 天。\n年假需提前 3 个工作日在系统申请。当年未休完的年假不结转至次年,过期作废。",
+            "score": 0.75,
+            "doc_id": "92c7d14ff8194f52b4b182e21b87edd6",
+            "filename": "年假制度2023.txt",
+            "heading_path": "",
+            "page": null,
+            "doc_no": "",
+            "effective_date": "",
+            "title": "年假制度2023",
+            "state": "effective"
+          },
+          "b": {
+            "kb_id": "53ec96a929374ef3",
+            "kb_name": "_验证库E-年假新版",
+            "text": "公司年假制度(2025 修订版):员工工作满 1 年可享受年假 8 天,满 5 年享受 12 天,满 10 年享受 18 天。\n年假需提前 7 个工作日在系统申请。当年未休完的年假可结转至次年第一季度使用。",
+            "score": 0.75,
+            "doc_id": "e0b39fecc09b45e98d62fe9ce6db03b1",
+            "filename": "年假制度2025.txt",
+            "heading_path": "",
+            "page": null,
+            "doc_no": "",
+            "effective_date": "",
+            "title": "年假制度2025",
+            "state": "effective"
+          }
+        }
+      ],
+      "elapsed_ms": 12460
+    },
+    "conflict_answer_preview": "\n\n根据公司提供的参考资料，年假的天数和结转政策存在两种不同的规定：\n\n1. **年假的天数**：\n   - **2025修订版**：员工工作满1年可享受年假8天，满5年享受12天，满10年享受18天。\n   - **2023版**：员工工作满1年可享受年假5天，满5年享受10天，满10年享受15天。\n\n2. **未休完年假的结转政策**：\n   - **2025修订版**：当年未休完的年假可结转至次年第一季度使用。\n   - **2023版**：当年未休完的年假不结转至次年，过期作废。\n\n因此，年假的具体规定会因修订版本的不同而有所差异。建议您参考最新的公司年假制度以获取准确信息。"
+  },
+  "summary": {
+    "pass": 27,
+    "fail": 0,
+    "total": 27,
+    "conclusion": "全部通过"
+  }
+}

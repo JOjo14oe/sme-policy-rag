@@ -1,0 +1,283 @@
+{
+  "base_url": "http://127.0.0.1:8000",
+  "checks": [
+    {
+      "name": "文档可携带制度元数据(编号/生效期/状态)",
+      "pass": true,
+      "detail": "doc_no=HR-2025-001"
+    },
+    {
+      "name": "新版本声明后旧版本自动标记为「已被替代」",
+      "pass": true,
+      "detail": "old.state=superseded superseded_by=HR-2025-001"
+    },
+    {
+      "name": "现行版本状态判定为 effective",
+      "pass": true,
+      "detail": "new.state=effective"
+    },
+    {
+      "name": "版本链按生效日期从旧到新",
+      "pass": true,
+      "detail": "['HR-2023-001', 'HR-2025-001']"
+    },
+    {
+      "name": "检索自动排除已废止版本(不命中 2023 版)",
+      "pass": true,
+      "detail": "hits=['年假制度2025.txt', '年假制度2025.txt', '年假制度2025.txt', '年假制度2025.txt']"
+    },
+    {
+      "name": "回答依据现行版本(8 天 / 可结转)",
+      "pass": true,
+      "detail": "  公司年假的天数根据员工的工作年限不同而有所区别：  1. 工作满1年可享受8天年假。 2. 工作满5年可享受12天年假。 3. 工作满10年可享受18天年假。  未休完的年假可以结转至次年第一季度"
+    },
+    {
+      "name": "同制度不同版本被判为「版本差异」而非普通冲突",
+      "pass": true,
+      "detail": "kind=version_conflict"
+    },
+    {
+      "name": "版本差异给出「以现行版为准」的建议依据",
+      "pass": true,
+      "detail": "preferred=HR-2025-777"
+    },
+    {
+      "name": "问答链路就版本差异发出告警事件",
+      "pass": true,
+      "detail": "events=['conflict', 'delta', 'done', 'hits', 'route', 'route_info'], version_conflicts=1"
+    },
+    {
+      "name": "即将到期的制度可被提醒",
+      "pass": true,
+      "detail": "days_to_expiry=10"
+    },
+    {
+      "name": "制度属性可通过接口单独修改",
+      "pass": true,
+      "detail": "issuer=行政部"
+    },
+    {
+      "name": "受限库对非授权部门隐藏",
+      "pass": true,
+      "detail": "hidden_count=2"
+    },
+    {
+      "name": "受限库对授权部门可见",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "管理员可见全部知识库(含受限库)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "自动路由候选不含无权访问的库",
+      "pass": true,
+      "detail": "candidates=['7d3ce949c991415d', '551e98d657ea4b75', 'b4e4628c73a64d10', '4665bfe846834711', '2453c01b45b74cb5']"
+    },
+    {
+      "name": "手动指定越权库被拒绝(返回 denied 事件)",
+      "pass": true,
+      "detail": "无权访问知识库「_验证-薪酬制度(受限)」(可见范围:restricted,允许部门:人力资源部;当前身份:财务部)"
+    },
+    {
+      "name": "越权访问文档列表返回 403",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "name": "越权调用冲突检测返回 403",
+      "pass": true,
+      "detail": "http=403"
+    },
+    {
+      "name": "授权部门可正常检索该库",
+      "pass": true,
+      "detail": "  薪酬保密制度规定了薪酬管理的保密性要求。根据参考资料[1]，薪酬保密制度明确指出，员工薪酬实行保密管理，薪酬明细仅限于人力资源部与员工本人可见，严禁相互打探"
+    },
+    {
+      "name": "审计记录已产生",
+      "pass": true,
+      "detail": "total=612"
+    },
+    {
+      "name": "问答行为已留痕",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "越权拒绝已留痕",
+      "pass": true,
+      "detail": "denied=6"
+    },
+    {
+      "name": "知识库创建已留痕",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "文档元数据修改已留痕",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "可按操作类型过滤查询",
+      "pass": true,
+      "detail": "count=24"
+    },
+    {
+      "name": "审计统计可用(总数/越权数/分布)",
+      "pass": true,
+      "detail": "total=612 denied=24"
+    },
+    {
+      "name": "非管理员查询审计受部门范围约束",
+      "pass": true,
+      "detail": "depts={'财务部'}"
+    }
+  ],
+  "metrics": {
+    "version": {
+      "old": {
+        "doc_id": "6380aa2065714d91b091764c40e22557",
+        "filename": "年假制度2023.txt",
+        "ext": ".txt",
+        "file_hash": "491e8f2f5f69d3f6edbd2a98de2379e8e42d52826c871b4021d6728ac30c8675",
+        "chunk_count": 4,
+        "version": 1,
+        "created_at": "2026-09-23T13:23:28+00:00",
+        "updated_at": "2026-09-23T13:23:28+00:00",
+        "doc_no": "HR-2023-001",
+        "title": "公司年假制度",
+        "effective_date": "2023-01-01",
+        "expiry_date": "",
+        "doc_status": "superseded",
+        "issuer": "人力资源部",
+        "dept_scope": "",
+        "supersedes": "",
+        "superseded_by": "HR-2025-001",
+        "state": "superseded",
+        "state_label": "已被替代",
+        "is_current": false,
+        "days_to_expiry": null
+      },
+      "new": {
+        "doc_id": "739e9cf7ab49418e822e31e78318e373",
+        "filename": "年假制度2025.txt",
+        "ext": ".txt",
+        "file_hash": "c1d957fa70dee63fcb13f776083b6838c547724ba5fd500ca8477be5c61b9d6a",
+        "chunk_count": 4,
+        "version": 1,
+        "created_at": "2026-09-23T13:23:28+00:00",
+        "updated_at": "2026-09-23T13:23:28+00:00",
+        "doc_no": "HR-2025-001",
+        "title": "公司年假制度",
+        "effective_date": "2025-01-01",
+        "expiry_date": "",
+        "doc_status": "effective",
+        "issuer": "人力资源部",
+        "dept_scope": "",
+        "supersedes": "HR-2023-001",
+        "superseded_by": "",
+        "state": "effective",
+        "state_label": "现行有效",
+        "is_current": true,
+        "days_to_expiry": null
+      },
+      "answer": "\n\n公司年假的天数根据员工的工作年限不同而有所区别：\n\n1. 工作满1年可享受8天年假。\n2. 工作满5年可享受12天年假。\n3. 工作满10年可享受18天年假。\n\n未休完的年假可以结转至次年第一季度使用。\n\n以上结论均依据公司年假制度2025.txt的相关规定。",
+      "hits": [
+        "年假制度2025.txt",
+        "年假制度2025.txt",
+        "年假制度2025.txt",
+        "年假制度2025.txt"
+      ],
+      "conflict": {
+        "version_conflicts": 2,
+        "genuine_conflicts": 0,
+        "first": {
+          "pair": 1,
+          "relation": "conflict",
+          "point": "年假申请时间要求不同。",
+          "a_claim": "第二条 年假需提前 3 个工作日在系统申请",
+          "b_claim": "第二条 年假需提前 7 个工作日在系统申请",
+          "topic_sim": 0.8621,
+          "numeric_divergence": {
+            "a_only": [
+              "3"
+            ],
+            "b_only": [
+              "7"
+            ]
+          },
+          "kind": "version_conflict",
+          "kind_label": "制度版本差异",
+          "preferred": {
+            "doc_id": "357b4954c0a248a2b301a1e8ac80587b",
+            "doc_no": "HR-2025-777",
+            "title": "年假管理办法",
+            "effective_date": "2025-01-01",
+            "state_label": "现行有效"
+          },
+          "detected_by": "numeric+llm",
+          "a": {
+            "kb_id": "4665bfe846834711",
+            "kb_name": "_验证-年假旧档",
+            "text": "第二条 年假需提前 3 个工作日在系统申请,由部门负责人审批。",
+            "score": 0.742,
+            "doc_id": "aaab89f72b514e6b8dcb8c6ff146c961",
+            "filename": "年假办法2023.txt",
+            "heading_path": "",
+            "page": null,
+            "doc_no": "HR-2023-777",
+            "effective_date": "2023-01-01",
+            "title": "年假管理办法",
+            "state": "effective"
+          },
+          "b": {
+            "kb_id": "b4e4628c73a64d10",
+            "kb_name": "_验证-年假新档",
+            "text": "第二条 年假需提前 7 个工作日在系统申请,由部门负责人审批。",
+            "score": 0.762,
+            "doc_id": "357b4954c0a248a2b301a1e8ac80587b",
+            "filename": "年假办法2025.txt",
+            "heading_path": "",
+            "page": null,
+            "doc_no": "HR-2025-777",
+            "effective_date": "2025-01-01",
+            "title": "年假管理办法",
+            "state": "effective"
+          }
+        }
+      }
+    },
+    "permission": {
+      "denied_event": {
+        "message": "无权访问知识库「_验证-薪酬制度(受限)」(可见范围:restricted,允许部门:人力资源部;当前身份:财务部)",
+        "kb_id": "83b9ed1151f44aa6",
+        "kb_name": "_验证-薪酬制度(受限)"
+      }
+    },
+    "audit": {
+      "total": 612,
+      "actions": [
+        "ask",
+        "conflict",
+        "deny",
+        "doc_add",
+        "doc_delete",
+        "doc_meta",
+        "doc_update",
+        "kb_create",
+        "kb_delete"
+      ],
+      "denied": 6
+    }
+  },
+  "summary": {
+    "pass": 27,
+    "fail": 0,
+    "total": 27,
+    "conclusion": "全部通过"
+  }
+}
